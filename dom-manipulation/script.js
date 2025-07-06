@@ -3,7 +3,7 @@ let quotes = [
   { text: "Code every day", category: "Programming" }
 ];
 
-function displayRandomQuote() {
+function showRandomQuote() {
   const index = Math.floor(Math.random() * quotes.length);
   const quote = quotes[index];
   document.getElementById('quoteDisplay').innerHTML = ${quote.text} [${quote.category}];
