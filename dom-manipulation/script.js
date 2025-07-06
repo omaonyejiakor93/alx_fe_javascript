@@ -154,7 +154,7 @@ async function fetchQuotesFromServer() {
     saveQuotes();
     populateCategories();
     filterQuotes();
-    showSyncNotice("Fetched quotes from server");
+    showSyncNotice("Quotes synced with server");
 
     // Send (POST) local quotes to mock server
     await fetch('https://jsonplaceholder.typicode.com/posts', {
