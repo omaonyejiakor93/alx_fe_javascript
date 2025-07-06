@@ -195,3 +195,8 @@ window.onload = function () {
 function syncQuotes() {
   fetchQuotesFromServer(); // Call the main function inside
 }
+
+// Automatically sync with server every 30 seconds
+setInterval(() => {
+  syncQuotes();
+}, 30000); // 30000 ms = 30 seconds
