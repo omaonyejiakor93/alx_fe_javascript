@@ -191,3 +191,7 @@ window.onload = function () {
 
   document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 };
+
+function syncQuotes() {
+  fetchQuotesFromServer(); // Call the main function inside
+}
