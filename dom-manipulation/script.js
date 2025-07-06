@@ -1,4 +1,4 @@
-// Quotes array (default fallback)
+// Default quotes (only used if localStorage is empty)
 let quotes = [
   { text: "Believe in yourself!", category: "Motivation" },
   { text: "Code every day.", category: "Programming" },
@@ -35,7 +35,9 @@ function filterQuotes() {
   const selected = document.getElementById("categoryFilter").value;
   localStorage.setItem("selectedCategory", selected);
 
-  const filtered = selected === "all" ? quotes : quotes.filter(q => q.category === selected);
+  const filtered = selected === "all"
+    ? quotes
+    : quotes.filter(q => q.category === selected);
 
   if (filtered.length === 0) {
     document.getElementById("quoteDisplay").innerHTML = "No quotes in this category.";
@@ -46,13 +48,12 @@ function filterQuotes() {
   document.getElementById("quoteDisplay").innerHTML = ${quote.text} [${quote.category}];
 }
 
-// Populate the dropdown with unique categories
+// Populate filter dropdown with categories
 function populateCategories() {
   const select = document.getElementById("categoryFilter");
   const categories = [...new Set(quotes.map(q => q.category))];
 
   select.innerHTML = '<option value="all">All Categories</option>';
-
   categories.forEach(cat => {
     const option = document.createElement("option");
     option.value = cat;
@@ -61,7 +62,7 @@ function populateCategories() {
   });
 }
 
-// Restore last selected category
+// Restore saved category from localStorage
 function restoreCategoryFilter() {
   const saved = localStorage.getItem("selectedCategory");
   if (saved) {
@@ -70,7 +71,7 @@ function restoreCategoryFilter() {
   }
 }
 
-// Add a new quote
+// Add a quote from the form
 function addQuote() {
   const quoteText = document.getElementById("newQuoteText").value;
   const quoteCategory = document.getElementById("newQuoteCategory").value;
@@ -80,7 +81,6 @@ function addQuote() {
     saveQuotes();
     populateCategories();
     filterQuotes();
-
     document.getElementById("quoteDisplay").innerHTML = New quote added: ${quoteText} [${quoteCategory}];
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
@@ -89,7 +89,7 @@ function addQuote() {
   }
 }
 
-// Create the quote form dynamically
+// Create quote form dynamically
 function createAddQuoteForm() {
   const container = document.getElementById("addQuoteFormContainer");
 
@@ -121,10 +121,9 @@ function exportToJson() {
   link.click();
 }
 
-// Import quotes from uploaded JSON file
+// Import quotes from JSON file
 function importFromJsonFile(event) {
   const reader = new FileReader();
-
   reader.onload = function (e) {
     try {
       const importedQuotes = JSON.parse(e.target.result);
@@ -135,42 +134,42 @@ function importFromJsonFile(event) {
         filterQuotes();
         showSyncNotice("Quotes imported successfully!");
       } else {
-        alert('Invalid file format.');
+        alert("Invalid JSON format.");
       }
-    } catch (error) {
-      alert('Error parsing JSON.');
+    } catch (err) {
+      alert("Failed to parse JSON.");
     }
   };
-
   reader.readAsText(event.target.files[0]);
 }
 
-// Sync quotes with mock server and resolve conflicts
-function fetchQuotesFromServer() {
-  fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
-    .then(response => response.json())
-    .then(data => {
-      const serverQuotes = data.map(post => ({
-        text: post.title,
-        category: "Server"
-      }));
+// ✅✅✅ TASK 3 REQUIRED FUNCTION
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+    const data = await response.json();
 
-      // Conflict resolution: Replace local with server
-      quotes = serverQuotes;
-      saveQuotes();
-      populateCategories();
-      filterQuotes();
-      showSyncNotice("Quotes synced with server (local data replaced).");
-    })
-    .catch(error => {
-      console.error("Sync error:", error);
-      showSyncNotice("Server sync failed.", true);
-    });
+    // Convert server posts to quote format
+    const serverQuotes = data.map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    // Conflict resolution: replace local data
+    quotes = serverQuotes;
+    saveQuotes();
+    populateCategories();
+    filterQuotes();
+    showSyncNotice("Quotes synced from server (local data replaced).");
+  } catch (error) {
+    console.error("Fetch failed:", error);
+    showSyncNotice("Failed to fetch quotes from server.", true);
+  }
 }
 
-// Show success/failure sync message
+// Show sync/import messages
 function showSyncNotice(message, isError = false) {
-  const notice = document.getElementById('syncNotice');
+  const notice = document.getElementById("syncNotice");
   notice.textContent = message;
   notice.style.color = isError ? 'red' : 'green';
   setTimeout(() => {
@@ -178,12 +177,11 @@ function showSyncNotice(message, isError = false) {
   }, 4000);
 }
 
-// Page load initializer
+// Run everything on page load
 window.onload = function () {
   loadQuotes();
   createAddQuoteForm();
   populateCategories();
   restoreCategoryFilter();
-
   document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
 };
