@@ -146,7 +146,7 @@ function importFromJsonFile(event) {
 }
 
 // Sync quotes with mock server and resolve conflicts
-function syncWithServer() {
+function fetchQuotesFromServer() {
   fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
     .then(response => response.json())
     .then(data => {
